@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
+const flex = require('./config/flexOut');
 
 // Import configuration
 const { db, cache } = require('./config');
@@ -45,10 +46,21 @@ app.get('/', (req, res) => {
   res.json({ message: 'ISTA API Server is running' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Initialize FlexPayOut before starting server
+(async () => {
+  try {
+    await flex.initialize();
+    
+    // Start server after initialization
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log('token flex:', flex.token);
+    });
+  } catch (error) {
+    console.error('Failed to initialize FlexPayOut:', error);
+    process.exit(1);
+  }
+})();
 
 // Handle graceful shutdown
 process.on('SIGTERM', () => {
@@ -67,7 +79,6 @@ process.on('SIGINT', () => {
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
 });
-
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);

@@ -28,6 +28,7 @@ class AgentModel extends Model {
     return this.query(sql, params);
   }
 
+
   /**
    * Récupère un agent par son ID
    * @param {number} id - ID de l'agent
@@ -327,11 +328,11 @@ class AgentModel extends Model {
     if (login.includes('@')) {
       sql = 'SELECT * FROM agent WHERE e_mail = ? AND mdp = ?';
     } else {
-      sql = 'SELECT * FROM agent WHERE matricule = ? AND mdp = ?';
+      sql = 'SELECT * FROM agent WHERE matricule = ? AND secure = ?';
     }
     
     const result = await this.query(sql, [login, password]);
-    
+
     if (result.success && Array.isArray(result.data) && result.data.length === 0) {
       return this.errorResponse('Invalid credentials', 401);
     }
